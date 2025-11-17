@@ -18,6 +18,8 @@
  */
 
 #include <Arduino.h>
+#include <FS.h>
+#include <LittleFS.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -74,6 +76,69 @@ extern "C" {
     void vTelemetryTransmitterTask(void *pvParameters);
 }
 
+// --- Ejemplo mínimo LittleFS: crear, escribir, leer y borrar ---
+static void runLittleFSDemo() {
+  Serial.println("\n[LittleFS] Demo: crear -> añadir -> leer -> borrar");
+
+  if (!LittleFS.begin(true)) {
+    Serial.println("[LittleFS] ERROR: no se pudo montar (formateado si era necesario)");
+    return;
+  }
+
+  const char *path = "/demo.txt";
+
+  // Limpieza inicial opcional
+  if (LittleFS.exists(path)) {
+    LittleFS.remove(path);
+  }
+
+  // 1) Crear y escribir
+  {
+    File f = LittleFS.open(path, FILE_WRITE);
+    if (!f) {
+      Serial.println("[LittleFS] ERROR al crear archivo");
+      return;
+    }
+    f.println("Hola desde LittleFS 👋");
+    f.println("Linea 1");
+    f.close();
+    Serial.println("[LittleFS] Archivo creado y escrito (2 lineas)");
+  }
+
+  // 2) Añadir (append)
+  {
+    File f = LittleFS.open(path, FILE_APPEND);
+    if (!f) {
+      Serial.println("[LittleFS] ERROR al abrir para append");
+      return;
+    }
+    f.println("Linea 2 (append)");
+    f.close();
+    Serial.println("[LittleFS] Linea añadida (append)");
+  }
+
+  // 3) Leer contenido completo
+  {
+    File f = LittleFS.open(path, FILE_READ);
+    if (!f) {
+      Serial.println("[LittleFS] ERROR al abrir para lectura");
+      return;
+    }
+    Serial.println("[LittleFS] Contenido de /demo.txt:");
+    while (f.available()) {
+      Serial.write(f.read());
+    }
+    f.close();
+  }
+
+  // 4) Borrar
+  if (LittleFS.remove(path)) {
+    Serial.println("\n[LittleFS] Archivo borrado correctamente");
+  } else {
+    Serial.println("\n[LittleFS] ERROR al borrar archivo");
+  }
+}
+
 /**
  * @brief Función de inicialización del sistema
  * 
@@ -93,9 +158,8 @@ void setup() {
   // Esperar un poco que Serial esté listo
   delay(1000);
 
-  Serial.print("Temp onBoard ");
-  // Serial.print(temp_celsius);
-  Serial.println("°C");
+  // Demo LittleFS antes de iniciar tareas
+  runLittleFSDemo();
 
   Serial.println("\n🛰️  TEIDESAT SATELLITE TELEMETRY SYSTEM - ESP32 WOKWI");
   Serial.println("======================================================");
