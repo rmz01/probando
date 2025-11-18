@@ -20,6 +20,7 @@
 #include <Arduino.h>
 #include <FS.h>
 #include <LittleFS.h>
+#include "../include/telemetry_logger.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -161,9 +162,18 @@ void setup() {
   // Demo LittleFS antes de iniciar tareas
   runLittleFSDemo();
 
-  Serial.println("\n🛰️  TEIDESAT SATELLITE TELEMETRY SYSTEM - ESP32 WOKWI");
-  Serial.println("======================================================");
-  Serial.println("Starting FreeRTOS tasks...");
+  // Inicializar logger y registrar algunas lineas al archivo
+  telemetry_logger_init();
+  // Borrar el contenido previo del log para esta sesión
+  telemetry_log_clear();
+  telemetry_logf("Sistema de telemetría iniciando...");
+  // Escribe un identificador de arranque para poder ver claramente que proviene del fichero
+  uint32_t bootId = esp_random();
+  telemetry_logf("LOG PROOF: BOOT_ID=%08X", (unsigned)bootId);
+
+  telemetry_logf("\n🛰️  TEIDESAT SATELLITE TELEMETRY SYSTEM - ESP32 WOKWI");
+  telemetry_logf("======================================================");
+  telemetry_logf("Starting FreeRTOS tasks...");
 
   // Crear tareas de telemetría
   xTaskCreate(
@@ -193,9 +203,9 @@ void setup() {
     NULL
   );
 
-  Serial.println("✅ All telemetry tasks created successfully");
-  Serial.println("📡 System operational - Telemetry data generation started");
-  Serial.println("--------------------------------------------------------\n");
+  telemetry_logf("✅ All telemetry tasks created successfully");
+  telemetry_logf("📡 System operational - Telemetry data generation started");
+  telemetry_logf("--------------------------------------------------------");
 }
 
 /**
@@ -214,13 +224,21 @@ void loop() {
   // FreeRTOS maneja las tareas, este loop puede estar vacío
   delay(1000);
 
+  // Dump periódico del fichero cada 15 segundos
+  static uint32_t last_dump = 0;
+  if (millis() - last_dump > 15000) {
+    Serial.println("\n[Logger] Dump periódico del fichero /telemetry_log.txt:");
+    telemetry_dump_log();
+    last_dump = millis();
+  }
+
 	// Opcional: mostrar estado general periódicamente
   static uint32_t last_status = 0;
   if(millis() - last_status > 30000) { // Cada 30 segundos
     last_status = millis();
-    Serial.printf("\n📈 SYSTEM STATUS: Uptime: %lus | Heap: %lu | Tasks: %d\n",
-                    millis() / 1000, 
-                    esp_get_free_heap_size(),
-                    uxTaskGetNumberOfTasks());
+    telemetry_logf("\n📈 SYSTEM STATUS: Uptime: %lus | Heap: %lu | Tasks: %d",
+                   millis() / 1000,
+                   esp_get_free_heap_size(),
+                   uxTaskGetNumberOfTasks());
   }
 }
