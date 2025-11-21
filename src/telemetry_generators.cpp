@@ -16,16 +16,18 @@
  * - Temperaturas (OBC, comunicaciones, payload, batería, externa)
  * - Estado de subsistemas (comms, ADCS, payload, potencia)
  * 
- * @note En entorno WOKWI, se utilizan sensores virtuales que generan datos
- * aleatorios realistas. En hardware real, estas funciones se modificarían
- * para leer sensores físicos reales.
+ * @note En entorno este entorno de pruebas, no se utilizan sensores 
+ * físicos reales, sino que se generan datos aleatorios realistas. 
+ * En hardware real, estas funciones se modificarían para leer sensores físicos reales.
  */
 
-#include "telemetry_storage.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_heap_caps.h"
+#include <Arduino.h>
+#include <ESPCPUTemp.h>
+#include "../include/telemetry_storage.h"
 
 static uint16_t sequence_number = 0; /**< Contador de secuencia para paquetes de telemetría */
 static uint32_t system_uptime = 0; /**< Tiempo de actividad del sistema en segundos */

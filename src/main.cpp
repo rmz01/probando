@@ -14,68 +14,22 @@
  * - Procesador de telemetría: Procesa y analiza los datos capturados
  * - Transmisor de telemetría: Envía los datos procesados
  * 
- * @note Este código está optimizado para ejecutarse en un entorno Wokwi ESP32.
+ * @note Este código está optimizado para ejecutarse en un ESP32-WROOM-32.
  */
 
 #include <Arduino.h>
 #include <FS.h>
 #include <LittleFS.h>
-#include "../include/telemetry_logger.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "../include/telemetry_storage.h"
+#include "../include/telemetry_logger.h"
 
-/*
- * DATO IMPORTANTE
- * El archivo main.cpp está en C++, pero las funciones de las tareas están implementadas en archivos .c (C puro)
- * extern "C" le dice al compilador de C++ que use el sistema de nombres de C para estas funciones.
- * Sin esto, el linker no podría encontrar las funciones porque C++ modifica los nombres de las funciones para 
- * soportar sobrecarga, mientras que C no lo hace.
- */
-extern "C" {
-    /**
-     * @brief Tarea para recolección de datos de telemetría
-     * @param pvParameters Parámetros de la tarea (no utilizados)
-     * 
-     * @details Esta tarea se encarga de recopilar datos de los diferentes sensores
-     * y sistemas del satélite, incluyendo:
-     * - Estado del sistema
-     * - Datos de energía
-     * - Temperaturas
-     * - Estado de subsistemas
-     * 
-     * La tarea se ejecuta periódicamente y almacena los datos en el buffer circular
-     * de telemetría para su posterior procesamiento.
-     */
-    void vTelemetryCollectorTask(void *pvParameters);
-
-    /**
-     * @brief Tarea para procesamiento de datos de telemetría
-     * @param pvParameters Parámetros de la tarea (no utilizados)
-     * 
-     * @details Esta tarea procesa los datos almacenados en el buffer circular,
-     * realizando operaciones como:
-     * - Validación de datos
-     * - Cálculo de estadísticas
-     * - Detección de anomalías
-     * - Preparación para transmisión
-     */
-    void vTelemetryProcessorTask(void *pvParameters);
-
-    /**
-     * @brief Tarea para transmisión de datos de telemetría
-     * @param pvParameters Parámetros de la tarea (no utilizados)
-     * 
-     * @details Esta tarea se encarga de transmitir los datos procesados,
-     * implementando:
-     * - Priorización de mensajes
-     * - Gestión de cola de transmisión
-     * - Control de errores
-     * - Confirmación de envío
-     */
-    void vTelemetryTransmitterTask(void *pvParameters);
-}
+// Declaración de las tareas de telemetría
+void vTelemetryCollectorTask(void *pvParameters);
+void vTelemetryProcessorTask(void *pvParameters);
+void vTelemetryTransmitterTask(void *pvParameters);
 
 // --- Ejemplo mínimo LittleFS: crear, escribir, leer y borrar ---
 static void runLittleFSDemo() {
@@ -164,8 +118,10 @@ void setup() {
 
   // Inicializar logger y registrar algunas lineas al archivo
   telemetry_logger_init();
+
   // Borrar el contenido previo del log para esta sesión
   telemetry_log_clear();
+
   telemetry_logf("Sistema de telemetría iniciando...");
   // Escribe un identificador de arranque para poder ver claramente que proviene del fichero
   uint32_t bootId = esp_random();

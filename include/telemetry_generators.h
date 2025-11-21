@@ -38,8 +38,6 @@ void generate_system_telemetry(void);
  * - Estado general del sistema de potencia
  * 
  * Esta telemetría tiene prioridad alta debido a su importancia crítica
- * En WOKWI se utilizan sensores virtuales, mientras que en hardware 
- * real se leerían ADCs y sensores I2C.
  * 
  * @note El nivel de batería disminuye gradualmente con el tiempo
  * para simular el consumo energético real.
