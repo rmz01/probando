@@ -30,7 +30,8 @@
 #include "../include/telemetry_storage.h"
 
 static uint16_t sequence_number = 0; /**< Contador de secuencia para paquetes de telemetría */
-static uint32_t system_uptime = 0; /**< Tiempo de actividad del sistema en segundos */
+// Contador de ciclos de generación (se mantiene para modelos de degradación como batería)
+static uint32_t generation_cycle_count = 0; 
 
 void generate_system_telemetry(void) {
   system_status_telem_t system_telem;
@@ -40,7 +41,10 @@ void generate_system_telemetry(void) {
   system_telem.header.sequence = sequence_number++;
   system_telem.header.priority = 1;
 
-  system_telem.uptime_seconds = system_uptime++;
+  // Uptime real basado en ticks FreeRTOS (configTICK_RATE_HZ normalmente = 1000 en Arduino ESP32)
+  uint32_t uptime_sec = (uint32_t)(xTaskGetTickCount() / configTICK_RATE_HZ);
+  system_telem.uptime_seconds = uptime_sec;
+  generation_cycle_count++; // Incrementar ciclo de generación independiente del uptime real
 
   // Estados específicos del ESP32
   system_telem.system_mode = 1; // nominal
@@ -71,7 +75,14 @@ void generate_power_telemetry(void) {
   power_telem.battery_current = 0.1f;
   power_telem.solar_panel_voltage = 5.0f;
   power_telem.solar_panel_current = 0.5f;
-  power_telem.battery_level = 85 - (system_uptime / 3600);
+  // Degradación lenta de batería: 1% cada hora real.
+  uint32_t uptime_sec = (uint32_t)(xTaskGetTickCount() / configTICK_RATE_HZ);
+  uint8_t level = 85;
+  if (uptime_sec >= 3600) {
+    uint32_t drop = uptime_sec / 3600; // cada hora baja 1%
+    level = (drop >= 85) ? 0 : (uint8_t)(85 - drop);
+  }
+  power_telem.battery_level = level;
   power_telem.power_state = 0;
 
   telemetry_store_packet((telemetry_packet_t*)&power_telem);
@@ -107,8 +118,9 @@ void generate_subsystem_telemetry(void) {
   subsys_telem.adcs_status = 1;  
   subsys_telem.payload_status = 1;
   subsys_telem.power_status = 1;
-  subsys_telem.comms_uptime = system_uptime;
-  subsys_telem.payload_uptime = system_uptime - 100;
+  uint32_t uptime_sec2 = (uint32_t)(xTaskGetTickCount() / configTICK_RATE_HZ);
+  subsys_telem.comms_uptime = uptime_sec2;
+  subsys_telem.payload_uptime = (uptime_sec2 > 100) ? (uptime_sec2 - 100) : 0;
   subsys_telem.last_command_id = 0x25;
   subsys_telem.command_success_rate = 98;
 

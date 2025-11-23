@@ -28,19 +28,10 @@ void telemetry_diagnostics_init(void) {
 void telemetry_diagnostics_tick(void) {
   uint32_t now = millis();
 
-  // Dump periódico del fichero cada 30 s
-  if (now - s_last_dump_ms > 30000) {
+  // Dump periódico del fichero cada 31 s
+  if (now - s_last_dump_ms > 31000) {
     telemetry_logf("\n[DIAG] File dump trigger");
     telemetry_dump_log();
     s_last_dump_ms = now;
-  }
-
-  // Estado del sistema cada 20 s
-  if (now - s_last_status_ms > 20000) {
-    s_last_status_ms = now;
-    uint32_t written, read, lost;
-    telemetry_get_stats(&written, &read, &lost);
-    telemetry_logf("\n📈 SYSTEM STATUS: Uptime: %lus | Heap: %lu | Tasks: %d | Buf W/R/L=%lu/%lu/%lu",\
-                    now / 1000, esp_get_free_heap_size(), uxTaskGetNumberOfTasks(), written, read, lost);
   }
 }

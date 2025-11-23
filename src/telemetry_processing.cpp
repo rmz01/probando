@@ -26,14 +26,17 @@ bool telemetry_processing_handle_one(void) {
   }
 
   switch(packet.header.type) {
-    case TELEM_SYSTEM_STATUS:
-      telemetry_logf("📊 SYSTEM: Uptime=%lus | Heap=%lu | Tasks=%d | CPU Temp=%.1fC | Seq=%d",
+    case TELEM_SYSTEM_STATUS: {
+      uint32_t written=0, read=0, lost=0;
+      telemetry_get_stats(&written, &read, &lost);
+      telemetry_logf("📊 SYSTEM: Uptime=%lus | Heap=%lu | Tasks=%d | CPU Temp=%.1fC | Seq=%d | Buf W/R/L=%lu/%lu/%lu",
                       packet.system.uptime_seconds,
                       packet.system.heap_free,
                       packet.system.task_count,
                       packet.system.cpu_temperature,
-                      packet.header.sequence);
-    break;
+                      packet.header.sequence,
+                      written, read, lost);
+    } break;
     case TELEM_POWER_DATA:
       telemetry_logf("🔋 POWER: Bat=%.2fV | Level=%d%% | Temp=%dC | Seq=%d",
                       packet.power.battery_voltage,
@@ -60,6 +63,9 @@ bool telemetry_processing_handle_one(void) {
     break;
     }
 
-  telemetry_logf("   Available packets: %lu", telemetry_available_packets());
+  // Ya mostramos métricas del buffer en la línea de SYSTEM; evitar línea extra para mantener salida concisa.
+  if(packet.header.type != TELEM_SYSTEM_STATUS) {
+    telemetry_logf("   Available packets: %lu", telemetry_available_packets());
+  }
   return true;
 }
