@@ -1,4 +1,4 @@
-# 🛰️ TEIDESAT - ESP32 Development Setup Guide
+# 🛰️ TEIDESAT OPERATIVE SYSTEM FREERTOS - ESP32 
 
 ## 🎯 Requirements
 
@@ -43,7 +43,27 @@ sudo udevadm trigger
 
 #### Verify Setup
 ```bash
-#  Connect ESP32 and check permissions
+# Connect ESP32 and check device permissions
 ls -la /dev/ttyUSB0
-# Should show: crw-rw-rw- 1 root dialout
+# Expected example: crw-rw-rw- 1 root dialout
 ```
+
+## 📐 Telemetry Architecture
+
+The telemetry system is divided into modules with clear responsibilities to facilitate unit testing, maintenance, and extensibility:
+
+| Module       | File (include/src)                       | Primary Responsibility                                                                 |
+|--------------|-------------------------------------------|----------------------------------------------------------------------------------------|
+| Acquisition  | `telemetry_acquisition.h/.cpp`            | Orchestrate packet generation from generators and store them in the buffer.          |
+| Processing   | `telemetry_processing.h/.cpp`             | Retrieve packets and format them for logging/analytics.                              |
+| Transmission | `telemetry_transmission.h/.cpp`           | Manage contact windows and (simulated) transmit all available packets.               |
+| Logging      | `telemetry_logger.h/.cpp`                 | Persist data to LittleFS and output via Serial.                                      |
+| Diagnostics  | `telemetry_diagnostics.h/.cpp`            | System health: periodic dumps, statistics, and status.                               |
+| Storage      | `telemetry_storage.h/.cpp`                | Thread-safe circular buffer with mutexes and usage metrics.                          |
+| Types        | `telemetry_types.h`                       | Definitions of structures and packet unions.                                         |
+
+### Data Flow (Pipeline)
+1. `telemetry_acquisition_cycle()` generates all types and stores them.
+2. `telemetry_processing_handle_one()` consumes and formats packets for inspection.
+3. `telemetry_transmission_cycle()` opens contact windows and transmits (simulated) remaining packets.
+4. `telemetry_diagnostics_tick()` provides visibility (dump logs + buffer metrics + heap).

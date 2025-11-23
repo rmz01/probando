@@ -23,6 +23,10 @@
 #include "esp_system.h"
 #include "../include/telemetry_storage.h"
 #include "../include/telemetry_logger.h"
+#include "../include/telemetry_diagnostics.h"
+#include "../include/telemetry_acquisition.h"
+#include "../include/telemetry_processing.h"
+#include "../include/telemetry_transmission.h"
 
 // Declaración de las tareas de telemetría
 void vTelemetryCollectorTask(void *pvParameters);
@@ -94,6 +98,9 @@ void setup() {
   telemetry_logf("✅ All telemetry tasks created successfully");
   telemetry_logf("📡 System operational - Telemetry data generation started");
   telemetry_logf("--------------------------------------------------------");
+
+  // Inicializar diagnóstico separado
+  telemetry_diagnostics_init();
 }
 
 /**
@@ -109,24 +116,7 @@ void setup() {
  * no en este loop.
  */
 void loop() {
-  // FreeRTOS maneja las tareas, este loop puede estar vacío
-  delay(1000);
-
-  // Dump periódico del fichero cada 15 segundos
-  static uint32_t last_dump = 0;
-  if (millis() - last_dump > 15000) {
-    Serial.println("\n[Logger] Dump periódico del fichero /telemetry_log.txt:");
-    telemetry_dump_log();
-    last_dump = millis();
-  }
-
-	// Opcional: mostrar estado general periódicamente
-  static uint32_t last_status = 0;
-  if(millis() - last_status > 30000) { // Cada 30 segundos
-    last_status = millis();
-    telemetry_logf("\n📈 SYSTEM STATUS: Uptime: %lus | Heap: %lu | Tasks: %d",
-                   millis() / 1000,
-                   esp_get_free_heap_size(),
-                   uxTaskGetNumberOfTasks());
-  }
+  // Delegar diagnóstico periódico al módulo de diagnóstico
+  telemetry_diagnostics_tick();
+  vTaskDelay(pdMS_TO_TICKS(1000));
 }
