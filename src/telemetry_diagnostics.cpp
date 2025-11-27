@@ -15,6 +15,7 @@
 #include "../include/telemetry_diagnostics.h"
 #include "../include/telemetry_logger.h"
 #include "../include/telemetry_storage.h"
+#include "../include/telemetry_tasks.h"
 
 static uint32_t s_last_dump_ms = 0;
 static uint32_t s_last_status_ms = 0;
@@ -34,4 +35,23 @@ void telemetry_diagnostics_tick(void) {
     telemetry_dump_log();
     s_last_dump_ms = now;
   }
+
+  // Reporte de uso de stack de tareas cada ~20s (solo si DEBUG_STACK está definido)
+#ifdef DEBUG_STACK
+  if (now - s_last_status_ms > 20000) {
+    s_last_status_ms = now;
+    if (gTaskCollectHandle) {
+      UBaseType_t hwm = uxTaskGetStackHighWaterMark(gTaskCollectHandle);
+      telemetry_logf("[STACK] TelemCollect high-water mark: %u stack words free", (unsigned)(hwm * sizeof(StackType_t)));
+    }
+    if (gTaskProcessHandle) {
+      UBaseType_t hwm = uxTaskGetStackHighWaterMark(gTaskProcessHandle);
+      telemetry_logf("[STACK] TelemProcess high-water mark: %u stack words free", (unsigned)(hwm * sizeof(StackType_t)));
+    }
+    if (gTaskTransmitHandle) {
+      UBaseType_t hwm = uxTaskGetStackHighWaterMark(gTaskTransmitHandle);
+      telemetry_logf("[STACK] TelemXmit high-water mark: %u stack words free", (unsigned)(hwm * sizeof(StackType_t)));
+    }
+  }
+#endif
 }

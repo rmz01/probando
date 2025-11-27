@@ -9,6 +9,7 @@
  * interpretando sus datos y generando logs informativos.
  */
 
+#include <Arduino.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "../include/telemetry_processing.h"
@@ -29,13 +30,27 @@ bool telemetry_processing_handle_one(void) {
     case TELEM_SYSTEM_STATUS: {
       uint32_t written=0, read=0, lost=0;
       telemetry_get_stats(&written, &read, &lost);
-      telemetry_logf("📊 SYSTEM: Uptime=%lus | Heap=%lu | Tasks=%d | CPU Temp=%.1fC | Seq=%d | Buf W/R/L=%lu/%lu/%lu",
+      
+      // Calcular uso de RAM
+      size_t totalHeap = ESP.getHeapSize();
+      size_t freeHeap  = ESP.getFreeHeap();
+      size_t usedHeap  = (totalHeap > freeHeap) ? (totalHeap - freeHeap) : 0;
+      float  ramPct    = totalHeap ? (usedHeap * 100.0f) / totalHeap : 0.0f;
+      
+      // Calcular uso de Flash
+      size_t sketchSize = ESP.getSketchSize();
+      size_t flashTotal = ESP.getFlashChipSize();
+      float  flashPct   = flashTotal ? (sketchSize * 100.0f) / flashTotal : 0.0f;
+      
+      telemetry_logf("📊 SYSTEM: Uptime=%lus | Tasks=%d | CPU Temp=%.1fC | Seq=%d | Buf W/R/L=%lu/%lu/%lu",
                       packet.system.uptime_seconds,
-                      packet.system.heap_free,
                       packet.system.task_count,
                       packet.system.cpu_temperature,
                       packet.header.sequence,
                       written, read, lost);
+      telemetry_logf("   RAM: %.1f%% (%u/%u bytes) | Flash: %.1f%% (%u/%u bytes)",
+                      ramPct, (unsigned)usedHeap, (unsigned)totalHeap,
+                      flashPct, (unsigned)sketchSize, (unsigned)flashTotal);
     } break;
     case TELEM_POWER_DATA:
       telemetry_logf("🔋 POWER: Bat=%.2fV | Level=%d%% | Temp=%dC | Seq=%d",

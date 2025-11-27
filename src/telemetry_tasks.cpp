@@ -25,6 +25,10 @@
 #include "../include/telemetry_generators.h"
 #include "../include/telemetry_tasks.h"
 #include "../include/telemetry_logger.h"
+// Handles globales para diagnóstico de stack
+TaskHandle_t gTaskCollectHandle = NULL;
+TaskHandle_t gTaskProcessHandle = NULL;
+TaskHandle_t gTaskTransmitHandle = NULL;
 #include "../include/telemetry_acquisition.h"
 #include "../include/telemetry_processing.h"
 #include "../include/telemetry_transmission.h"
@@ -60,4 +64,7 @@ void vTelemetryTransmitterTask(void *pvParameters) {
     telemetry_transmission_cycle();
     vTaskDelay(pdMS_TO_TICKS(2000));
   }
+
+  // Crear tareas desde un punto común usando handles
+  // Nota: Este archivo no define setup(), pero las tareas se crean en main.cpp.
 }
