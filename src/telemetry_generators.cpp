@@ -90,11 +90,11 @@ void generate_power_telemetry(void) {
   float solar_i_variation = ((esp_random() % 200) - 100) / 1000.0f; // -0.1 a +0.1
   power_telem.solar_panel_current = 0.5f + solar_i_variation;
   
-  // Degradación lenta de batería: 1% cada hora real.
+  // Degradación lenta de batería: 1% cada 15 minutos real.
   uint32_t uptime_sec = (uint32_t)(xTaskGetTickCount() / configTICK_RATE_HZ);
   uint8_t level = 85;
-  if (uptime_sec >= 3600) {
-    uint32_t drop = uptime_sec / 3600; // cada hora baja 1%
+  if (uptime_sec >= 900) {
+    uint32_t drop = uptime_sec / 900; // cada 15 minutos baja 1%
     level = (drop >= 85) ? 0 : (uint8_t)(85 - drop);
   }
   power_telem.battery_level = level;

@@ -29,10 +29,10 @@ void telemetry_diagnostics_init(void) {
 void telemetry_diagnostics_tick(void) {
   uint32_t now = millis();
 
-  // Dump periódico del fichero cada 31 s
-  if (now - s_last_dump_ms > 31000) {
-    telemetry_logf("\n[DIAG] File dump trigger");
-    telemetry_dump_log();
+  // Dump periódico de todos los ficheros de telemetría cada 45 s
+  if (now - s_last_dump_ms > 45000) {
+    telemetry_logf("\n[DIAG] Triggering periodic dump of all telemetry logs");
+    telemetry_dump_all_logs();
     s_last_dump_ms = now;
   }
 

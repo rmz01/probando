@@ -42,32 +42,32 @@ bool telemetry_processing_handle_one(void) {
       size_t flashTotal = ESP.getFlashChipSize();
       float  flashPct   = flashTotal ? (sketchSize * 100.0f) / flashTotal : 0.0f;
       
-      telemetry_logf("📊 SYSTEM: Uptime=%lus | Tasks=%d | CPU Temp=%.1fC | Seq=%d | Buf W/R/L=%lu/%lu/%lu",
+      telemetry_log_system("📊 SYSTEM: Uptime=%lus | Tasks=%d | CPU Temp=%.1fC | Seq=%d | Buf W/R/L=%lu/%lu/%lu",
                       packet.system.uptime_seconds,
                       packet.system.task_count,
                       packet.system.cpu_temperature,
                       packet.header.sequence,
                       written, read, lost);
-      telemetry_logf("   RAM: %.1f%% (%u/%u bytes) | Flash: %.1f%% (%u/%u bytes)",
+      telemetry_log_system("   RAM: %.1f%% (%u/%u bytes) | Flash: %.1f%% (%u/%u bytes)",
                       ramPct, (unsigned)usedHeap, (unsigned)totalHeap,
                       flashPct, (unsigned)sketchSize, (unsigned)flashTotal);
     } break;
     case TELEM_POWER_DATA:
-      telemetry_logf("🔋 POWER: Bat=%.2fV | Level=%d%% | Temp=%dC | Seq=%d",
+      telemetry_log_power("🔋 POWER: Bat=%.2fV | Level=%d%% | Temp=%dC | Seq=%d",
                       packet.power.battery_voltage,
                       packet.power.battery_level,
                       packet.power.battery_temperature,
                       packet.header.sequence);
     break;
     case TELEM_TEMPERATURE_DATA:
-      telemetry_logf("🌡️ TEMP: OBC=%dC | COMMS=%dC | PAYLOAD=%dC | Seq=%d",
+      telemetry_log_temperature("🌡️ TEMP: OBC=%dC | COMMS=%dC | PAYLOAD=%dC | Seq=%d",
                       packet.temperature.obc_temperature,
                       packet.temperature.comms_temperature,
                       packet.temperature.payload_temperature,
                       packet.header.sequence);
     break;
     case TELEM_COMMUNICATION_STATUS:
-      telemetry_logf("📡 COMMS: Status=%d | Uptime=%lu | Success=%d%% | Seq=%d",
+      telemetry_log_comms("📡 COMMS: Status=%d | Uptime=%lu | Success=%d%% | Seq=%d",
                       packet.subsystems.comms_status,
                       packet.subsystems.comms_uptime,
                       packet.subsystems.command_success_rate,
