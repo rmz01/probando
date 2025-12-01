@@ -85,8 +85,6 @@ ls /dev/cu.*
 
 ### Ajustar endpoints del servidor
 
-Debes coordinar con el equipo backend de Fomalhaut para conocer los endpoints exactos. Ejemplo típico:
-
 ```json
 {
   "telemetry": "/api/v1/telemetry/data",
@@ -144,7 +142,6 @@ El bridge parsea automáticamente logs del ESP32 y los estructura en JSON:
 1. **Iniciar el servidor backend de Fomalhaut**
    ```bash
    cd Fomalhaut
-   # Seguir instrucciones del equipo backend
    ```
 
 2. **Subir código al ESP32**
@@ -219,59 +216,9 @@ Otro programa está usando el puerto serial (como el monitor de PlatformIO).
 lsof | grep ttyUSB0
 ```
 
-## 🔄 Alternativas de Implementación
-
-Si prefieres otras soluciones, considera:
-
-### Opción 1: WiFi directo (ESP32 → Servidor)
-- Modificar ESP32 para hacer HTTP POST directamente
-- **Pros:** Sin intermediario
-- **Contras:** Requiere modificar el firmware del ESP32
-
-### Opción 2: MQTT Broker
-- ESP32 publica logs a MQTT
-- Backend suscribe al broker
-- **Pros:** Desacoplamiento, escalable
-- **Contras:** Requiere broker MQTT adicional
-
-### Opción 3: Bridge actual (Recomendado ✅)
-- **Pros:** Simple, no requiere cambios en ESP32, fácil de debuguear
-- **Contras:** Requiere ejecutar script Python
-
-## 📝 Notas Importantes
-
-1. **Formato de logs del ESP32**: El bridge parsea automáticamente formatos comunes, pero puedes ajustar `parse_log_line()` para formatos específicos.
-
-2. **Endpoints del backend**: Coordina con el equipo de Fomalhaut para conocer los endpoints exactos que esperan recibir datos.
-
-3. **Rendimiento**: El bridge puede procesar varios cientos de líneas por segundo sin problemas.
-
-4. **Persistencia**: Si necesitas guardar logs también localmente, puedes activar el logging a archivo en el script.
-
 ## 🤝 Integración con Backend
 
 El equipo de backend de Fomalhaut debe implementar endpoints que reciban el JSON. Ejemplo en Spring Boot:
-
-```java
-@RestController
-@RequestMapping("/api/telemetry")
-public class TelemetryController {
-    
-    @PostMapping("/system")
-    public ResponseEntity<String> receiveSystemTelemetry(@RequestBody TelemetryData data) {
-        // Procesar datos de sistema
-        return ResponseEntity.ok("Received");
-    }
-    
-    @PostMapping("/power")
-    public ResponseEntity<String> receivePowerTelemetry(@RequestBody TelemetryData data) {
-        // Procesar datos de potencia
-        return ResponseEntity.ok("Received");
-    }
-    
-    // ... más endpoints
-}
-```
 
 ## 📚 Referencias
 
@@ -282,10 +229,4 @@ public class TelemetryController {
 
 ## 📄 Licencia
 
-GPL-3.0 - TeideSat Project
-
----
-
-**Autor:** TeideSat Team  
-**Fecha:** Diciembre 2025  
-**Versión:** 1.0
+GPL-3.0
