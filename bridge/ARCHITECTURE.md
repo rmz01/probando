@@ -200,31 +200,3 @@ platformio run --target upload
 cd bridge
 python3 esp32_to_fomalhaut_bridge.py
 ```
-
-## 📈 Evolución Futura (Opcional)
-
-### Opción A: WiFi Directo
-```
-ESP32 --[WiFi]--> Backend (sin bridge)
-```
-**Ventajas:** Menos componentes  
-**Desventajas:** Firmware más complejo
-
-### Opción B: MQTT Broker
-```
-ESP32 --[Serial]--> Bridge --[MQTT]--> Broker <--[MQTT]-- Backend
-```
-**Ventajas:** Escalable, múltiples suscriptores  
-**Desventajas:** Infraestructura adicional
-
-### Opción C: Bridge Actual (Recomendado) ✅
-```
-ESP32 --[Serial]--> Bridge --[HTTP]--> Backend
-```
-**Ventajas:** Simple, debuggeable, sin modificar ESP32  
-**Desventajas:** Requiere PC/servidor intermedio
-
----
-
-**Última actualización:** Diciembre 2025  
-**Autor:** TeideSat Team
