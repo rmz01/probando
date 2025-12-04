@@ -6,7 +6,7 @@
     "_comment": "Configuración del puerto serial. En Linux suele ser /dev/ttyUSB0 o /dev/ttyACM0. En Windows: COM3, COM4, etc."
   },
   "server": {
-    "base_url": "http://localhost:8080",
+    "base_url": "http://localhost:20001",
     "endpoints": {
       "telemetry": "/api/telemetry",
       "system": "/api/telemetry/system",
