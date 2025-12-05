@@ -14,5 +14,8 @@
             "comms": "/api/telemetry/comms"
         },
         "timeout": 5
-    }
+    },
+    "debug": false,
+    "retry_attempts": 3,
+    "retry_delay": 1
 }

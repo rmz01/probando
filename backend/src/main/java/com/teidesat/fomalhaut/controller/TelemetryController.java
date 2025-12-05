@@ -103,8 +103,8 @@ public class TelemetryController {
      */
     @PostMapping("/system")
     public ResponseEntity<Map<String, Object>> receiveSystemTelemetry(@RequestBody Telemetry telemetry) {
-        log.info("💻 Received system telemetry: CPU={}%, RAM={}KB", 
-                 telemetry.getCpuUsage(), telemetry.getRamFree());
+        log.info("💻 Received system telemetry: CPU={}%, Memory={}B", 
+                 telemetry.getCpuUsage(), telemetry.getMemoryFree());
         return saveTelemetry(telemetry);
     }
     
@@ -125,7 +125,8 @@ public class TelemetryController {
      */
     @PostMapping("/temperature")
     public ResponseEntity<Map<String, Object>> receiveTemperatureTelemetry(@RequestBody Telemetry telemetry) {
-        log.info("🌡️  Received temperature telemetry: T={}°C", telemetry.getTemperature());
+        log.info("🌡️  Received temperature telemetry: OBC={}°C, Comms={}°C", 
+                 telemetry.getObcTemp(), telemetry.getCommsTemp());
         return saveTelemetry(telemetry);
     }
     

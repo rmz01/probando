@@ -31,13 +31,34 @@ public class Telemetry {
     private String rawLine;
     
     // Campos específicos para cada tipo de telemetría
-    private Integer cpuUsage;           // system
-    private Integer ramFree;            // system
-    private Float voltage;              // power
-    private Float current;              // power
-    private Float temperature;          // temperature
-    private Integer rssi;               // comms
-    private Integer snr;                // comms
+    
+    // System telemetry
+    private Integer cpuUsage;
+    private Long memoryFree;
+    private Long uptime;
+    private Integer taskCount;
+    private Float cpuTemp;
+    
+    // Power telemetry
+    private Float voltage;
+    private Float current;
+    private Float solarVoltage;
+    private Float solarCurrent;
+    private Integer batteryLevel;
+    private Integer batteryTemp;
+    
+    // Temperature telemetry
+    private Float obcTemp;
+    private Float commsTemp;
+    private Float payloadTemp;
+    private Float batteryTempFloat;  // Float version for temperature data
+    private Float externalTemp;
+    
+    // Comms telemetry
+    private Integer rssi;
+    private Integer snr;
+    private Long commsUptime;
+    private Integer successRate;
     
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
