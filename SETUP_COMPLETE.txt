@@ -1,0 +1,272 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    SISTEMA FOMALHAUT - RESUMEN FINAL                          ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+🎯 OBJETIVO COMPLETADO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Backend Java-Spring implementado (Puerto 20001)
+✅ Frontend React integrado (Puerto 20002)
+✅ Bridge Python actualizado (Envía logs al backend correcto)
+✅ Base de datos H2 incluida
+✅ API REST completamente funcional
+✅ Todo documentado y listo para usar
+
+
+🚀 INICIO RÁPIDO (ELige UNO)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPCIÓN 1: Docker (Lo más fácil) ⭐
+└─ cd /home/u/Teidesat/probando
+└─ docker-compose up -d
+└─ Espera 10 segundos
+└─ Abre http://localhost:20002
+└─ Ver logs en pestaña "Logs"
+
+OPCIÓN 2: Local (Método manual)
+└─ cd backend && mvn clean package && java -jar target/fomalhaut-backend-1.0.0.jar
+└─ cd Fomalhaut && npm install && npm run dev
+└─ cd bridge && python3 simulate_esp32.py | python3 esp32_to_fomalhaut_bridge.py
+└─ Abre http://localhost:5173 (o 20002)
+
+OPCIÓN 3: Demostración Automática
+└─ cd /home/u/Teidesat/probando
+└─ ./demo.sh
+└─ Verá logs generados en tiempo real
+
+
+📁 ESTRUCTURA DE CARPETAS CREADAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+probando/
+│
+├── backend/                                    🆕 Backend Java-Spring
+│   ├── pom.xml                                  Configuración Maven
+│   ├── Dockerfile                               Para Docker
+│   ├── src/main/java/.../                       Código Java
+│   │   ├── FomalhautBackendApplication.java
+│   │   ├── controller/TelemetryController.java  REST API
+│   │   ├── model/Telemetry.java                Entidad JPA
+│   │   └── repository/TelemetryRepository.java  DAO
+│   └── README.md                                Documentación backend
+│
+├── bridge/                                     🔄 Bridge Python (actualizado)
+│   ├── esp32_to_fomalhaut_bridge.py             Envía a puerto 20001/api
+│   ├── config.json                              URL: localhost:20001/api
+│   ├── simulate_esp32.py                        Para testing
+│   ├── requirements.txt
+│   └── ARCHITECTURE.md
+│
+├── Fomalhaut/                                  Frontend React (ya existente)
+│   └── src/components/pages/Logs/              Pestaña de Logs funcional
+│       ├── Logs.tsx
+│       ├── LogsService.ts                       Conecta con backend
+│       └── Log.model.ts
+│
+├── docker-compose.yml                          🆕 Orquestar todo
+├── start_system.sh                             🆕 Script de inicio
+├── demo.sh                                     🆕 Demostración automática
+├── QUICKSTART.md                               🆕 Guía rápida
+├── INSTALL.md                                  🆕 Instalación paso a paso
+└── README.md                                   Principal actualizado
+
+
+📊 FLUJO DE DATOS COMPLETO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ESP32 GENERA:                Backend ALMACENA:          Frontend MUESTRA:
+[Sistema] CPU: 45%  ──┐
+[Potencia] V: 3.7V  ──┼─→  Bridge  ──→  API REST  ──→  {"type":"system",    ──┐
+[Temp] T: 25.3°C    ──┤     Python      Port 20001     "cpu_usage":45}       ├─→ http://localhost:20002
+[Comms] RSSI: -65   ──┘                              HTTP POST              │     Logs Tab
+                                    H2 Database        JSON Format            └─→ 💻 CPU: 45%
+                                    (In-Memory)                                 🔋 V: 3.7V
+                                                                                🌡️ T: 25.3°C
+
+
+🔗 ENDPOINTS API DISPONIBLES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GET Endpoints (Leer logs):
+  GET  /api/telemetry              → Todos los logs
+  GET  /api/telemetry/system       → Solo sistema
+  GET  /api/telemetry/power        → Solo potencia
+  GET  /api/telemetry/temperature  → Solo temperatura
+  GET  /api/telemetry/comms        → Solo comunicaciones
+  GET  /api/telemetry/latest/{N}   → Últimos N logs
+
+POST Endpoints (Bridge envía):
+  POST /api/telemetry              → General
+  POST /api/telemetry/system       → Datos de sistema
+  POST /api/telemetry/power        → Datos de potencia
+  POST /api/telemetry/temperature  → Datos de temperatura
+  POST /api/telemetry/comms        → Datos de comunicaciones
+
+DELETE Endpoints (Limpiar):
+  DELETE /api/telemetry/clear      → Limpiar todos
+  DELETE /api/telemetry/{id}       → Limpiar uno
+
+
+🌐 URLs DE ACCESO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Frontend (Abre en navegador):
+  http://localhost:20002                      Puerto 20002
+  → Pestaña "Logs" para ver datos
+
+Backend API (Para testing):
+  http://localhost:20001/api/telemetry        Puerto 20001
+  http://localhost:20001/api/h2-console       Consola BD
+
+Con docker-compose:
+  Frontend: http://localhost:20002
+  Backend:  http://localhost:20001/api
+
+
+✨ TIPOS DE TELEMETRÍA SOPORTADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💻 Sistema
+   CPU Usage (%)
+   RAM Free (KB)
+   Stack Free
+
+🔋 Potencia
+   Voltaje (V)
+   Corriente (A)
+   Power (W)
+
+🌡️ Temperatura
+   Sensor ID
+   Temperatura (°C)
+
+📡 Comunicaciones
+   RSSI (dBm)
+   SNR (dB)
+   Paquetes TX/RX
+
+
+📝 DOCUMENTACIÓN DISPONIBLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+INSTALL.md          → Instalación paso a paso (LEER PRIMERO)
+QUICKSTART.md       → Guía rápida
+README.md           → Información general del proyecto
+backend/README.md   → Documentación del backend Java
+bridge/README.md    → Configuración del bridge Python
+bridge/ARCHITECTURE.md   → Diagramas técnicos
+
+
+🎯 PASOS PARA EMPEZAR AHORA MISMO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Lee INSTALL.md (5 minutos)
+   └─ cat INSTALL.md
+
+2. Elige tu método preferido:
+
+   ✓ CON DOCKER (más fácil):
+     docker-compose up -d
+     sleep 10
+     Abre: http://localhost:20002
+
+   ✓ SIN DOCKER (más manual):
+     cd backend && mvn clean package && java -jar target/*.jar &
+     cd Fomalhaut && npm install && npm run dev
+     cd bridge && python3 simulate_esp32.py | python3 esp32_to_fomalhaut_bridge.py
+
+3. Abre el Frontend:
+   http://localhost:20002
+
+4. Haz clic en pestaña "Logs"
+
+5. ¡Verás los datos en tiempo real!
+
+
+🧪 TESTING SIN HARDWARE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Ejecuta el demo automático:
+  ./demo.sh
+
+Esto:
+  1. Limpia logs previos
+  2. Simula un ESP32 generando datos
+  3. Envía datos al backend
+  4. Muestra estadísticas en tiempo real
+  5. Te dice dónde ver los logs
+
+
+💾 CUANDO TENGAS ESP32 REAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Conecta ESP32 con USB
+2. Verifica puerto: ls /dev/ttyUSB*
+3. Edita bridge/config.json:
+   {
+     "serial": {
+       "port": "/dev/ttyUSB0"  ← Cambia aquí
+     }
+   }
+4. Ejecuta:
+   cd bridge && python3 esp32_to_fomalhaut_bridge.py
+5. Los logs aparecerán automáticamente en el frontend
+
+
+🔍 VERIFICAR QUE TODO FUNCIONA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Backend OK:
+  curl http://localhost:20001/api/telemetry
+
+Frontend OK:
+  curl http://localhost:20002 | head
+
+Datos en BD:
+  curl http://localhost:20001/api/telemetry | jq
+
+Últimos 10 logs:
+  curl http://localhost:20001/api/telemetry/latest/10 | jq
+
+
+⚙️ TROUBLESHOOTING RÁPIDO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+"Port 20001 already in use"
+  → lsof -i :20001 && kill -9 <PID>
+
+"Backend no responde"
+  → docker logs fomalhaut-backend
+  → O: tail -20 /tmp/backend.log
+
+"Frontend no carga"
+  → cd Fomalhaut && npm install && npm run dev
+
+"Bridge no envía datos"
+  → Verifica: cat bridge/config.json
+  → URL debe ser: http://localhost:20001/api
+
+"No hay dependencias Python"
+  → cd bridge && pip install -r requirements.txt
+
+
+🚀 ¡LISTO PARA USAR!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+El sistema completo está implementado, documentado y listo.
+
+Pasos para empezar:
+  1. cd /home/u/Teidesat/probando
+  2. docker-compose up -d     (O sigue INSTALL.md para instalación local)
+  3. Abre http://localhost:20002 en tu navegador
+  4. Haz clic en "Logs"
+  5. ¡Disfruta viendo tus datos en tiempo real!
+
+¿Necesitas ayuda? → Lee INSTALL.md
+
+
+═══════════════════════════════════════════════════════════════════════════════
+Última actualización: Diciembre 2025
+Autor: TeideSat Team
+Licencia: GPL-3.0
+═══════════════════════════════════════════════════════════════════════════════
